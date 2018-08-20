@@ -50,11 +50,13 @@ public:
 	void playAnimation(int posAnimation);
 	void addGame(game_ptr_t fptr);
 	void getNeoPixels(void);
+	void setBrightness(uint8_t brightness);
+	Adafruit_NeoPixel getStrip();
 private:
 	const int step = 500;                                                
 	const int ledcount  = 12;                                            
-	const int longpress  = 40;                                           
-	const int clocktime  = 200;                                          
+	const uint16_t longpress  = 100;                                           
+	const int clocktime  = 1000;                                          
 	const int maxAnimations = 10;
 	int animationAmount;
 	game_ptr_t game;
@@ -69,7 +71,7 @@ private:
 	int _minuteSinkPin;
 	int _watchButtonPin;
 	
-	volatile int buttoncounter;                                 //variable to count longpresses
+	uint16_t buttoncounter;                                 //variable to count longpresses
 
 	bool specialhour;                                        //variable that remembers if the "special" hour indicator needs to be shown or not
 	bool clockshow;                                         //variable that remembers if clockshow is in progress (is needed to break out of show routine to set the time on long press)	
@@ -79,8 +81,3 @@ private:
 	void printDate(void);
 	Adafruit_NeoPixel strip;
 };
-
-static void wakeup()
-{
-	detachInterrupt(0);
-}

@@ -1,25 +1,21 @@
 //------------------------------------------------------------------
 /*
-    Velleman K1200 Watch Firmware
+    Velleman VMW100 Watch Firmware
     Version 1.0
-    Written by: JGE,BN
-    20-03-2017
-
+    Written by: BN
+    
+	Maximum Brightness Allowed = 128, could damage USB port
+	
     Written in Arduino 1.8.1
 
 	Board: LilyPad Arduino 
-	Processor: ATmega328
+	Processor: ATmega32u4
 */
 //------------------------------------------------------------------
-#define EI_ARDUINO_INTERRUPTED_PIN
-#define EI_NOTEXTERNAL
-#include "EnableInterrupt.h"
-#include "LowPower.h"                                           //library to configure the atmega328p so it uses almost no power in sleep, for sweet, sweet battery life
-#include <avr/power.h>                                          //same as above                              
-#include <avr/sleep.h>   
-#include "K1200.h"
 
-#define GAMEWINS 10 
+#include "VMW100.h"
+
+#define GAMEWINS 2 
 
 enum gameState{
   none,
@@ -27,7 +23,7 @@ enum gameState{
   sleep
 };
 
-Velleman_K1200 watch = Velleman_K1200();
+Velleman_VMW100 watch = Velleman_VMW100();
 bool isShownHourArray[12];
 bool isShownMinuteArray[12];
 //------------------------------------------------------------------
@@ -47,7 +43,9 @@ void setup() {
   watch.setBeginAnimation(anim_pop_out);
   watch.setEndAnimation(anim_pop_in);
   watch.addGame(game);
+  watch.setBrightness(25);
   watch.begin();  
+  
 }
 //------------------------------------------------------------------
 /*
@@ -100,7 +98,7 @@ void game() {
 
   delay(100);
 
-  watch.setHand(11, 255, true, true);
+  watch.setHand(0, 255, true, true);
   watch.showArray(50);
 
   while (endgame == false) {
@@ -164,7 +162,7 @@ void game() {
     if (endgame == true) {
       break;
     }
-    state = showGameAnim(randnumber,true);
+    state = showGameAnim(randnumber,false);
     switch(state)
     {
       case none:
@@ -223,22 +221,22 @@ void game() {
 //------------------------------------------------------------------
 void anim_pop_out() {
   watch.clearArrays();
-  for (int i = 0; i <= 255; i = i + 20) {
+  for (int i = 0; i <= 255; i += 20) {
     watch.setAllLeds(i, false, true);
-    watch.showArray(0);
+    watch.showArray(20);
   }
-  for (int i = 255; i > 0; i = i - 20) {
+  for (int i = 255; i > 0; i -= 20) {
     watch.setAllLeds(i, false, true);
-    watch.showArray(0);
+    watch.showArray(20);
   }
   watch.clearArrays();
-  for (int i = 0; i <= 255; i = i + 20) {
+  for (int i = 0; i <= 255; i += 20) {
     watch.setAllLeds(i, true, false);
-    watch.showArray(0);
+    watch.showArray(20);
   }
-  for (int i = 255; i > 0; i = i - 20) {
+  for (int i = 255; i > 0; i -= 20) {
     watch.setAllLeds(i, true, false);
-    watch.showArray(0);
+    watch.showArray(20);
   }
   watch.clearArrays();
 }
@@ -255,21 +253,21 @@ void anim_pop_in() {
   watch.clearArrays();
   for (int i = 0; i <= 255; i = i + 20) {
     watch.setAllLeds(i, true, false);
-    watch.showArray(0);
+    watch.showArray(20);
   }
   for (int i = 255; i > 0; i = i - 20) {
     watch.setAllLeds(i, true, false);
-    watch.showArray(0);
+    watch.showArray(20);
   }
   watch.clearArrays();
 
   for (int i = 0; i <= 255; i = i + 20) {
     watch.setAllLeds(i, false, true);
-    watch.showArray(0);
+    watch.showArray(20);
   }
   for (int i = 255; i > 0; i = i - 20) {
     watch.setAllLeds(i, false, true);
-    watch.showArray(0);
+    watch.showArray(20);
   }
   watch.clearArrays();
 }
@@ -285,14 +283,14 @@ void anim_pop_in() {
 void anim_vertical() {
   watch.clearArrays();
   for (int i = 0; i <= 255; i = i + 10) {
-    watch.setHand(11, i, true, true);
-    watch.setHand(5, i, true, true);
-    watch.showArray(0);
+    watch.setHand(0, i, true, true);
+    watch.setHand(6, i, true, true);
+    watch.showArray(20);
   }
   for (int i = 255; i > 0; i = i - 10) {
-    watch.setHand(11, i, true, true);
-    watch.setHand(5, i, true, true);
-    watch.showArray(0);
+    watch.setHand(0, i, true, true);
+    watch.setHand(6, i, true, true);
+    watch.showArray(20);
   }
   watch.clearArrays();
 }
@@ -308,14 +306,14 @@ void anim_vertical() {
 void anim_horizontal() {
   watch.clearArrays();
   for (int i = 0; i <= 255; i = i + 10) {
-    watch.setHand(2, i, true, true);
-    watch.setHand(8, i, true, true);
-    watch.showArray(0);
+    watch.setHand(3, i, true, true);
+    watch.setHand(9, i, true, true);
+    watch.showArray(20);
   }
   for (int i = 255; i > 0; i = i - 10) {
-    watch.setHand(2, i, true, true);
-    watch.setHand(8, i, true, true);
-    watch.showArray(0);
+    watch.setHand(3, i, true, true);
+    watch.setHand(9, i, true, true);
+    watch.showArray(20);
   }
   watch.clearArrays();
 }
@@ -376,7 +374,7 @@ gameState showGameAnim(int speedAnim,bool clockwise)
         watch.setHand(i, 255, true, true);
       else
         watch.setHand(11-i,255,true,true);
-      watch.setHand(11, 255, true, true);
+      watch.setHand(0, 255, true, true);
       watch.showArray(speedAnim * 20);
       watch.clearArrays();
     }
